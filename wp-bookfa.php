@@ -16,15 +16,26 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-// لود خودکار کلاس‌ها از طریق کامپوزر
+// ۱. لود وابستگی‌های خارجی کامپوزر (کتابخانه تاریخ شمسی)
 if (file_exists(__DIR__ . '/vendor/autoload.php')) {
     require_once __DIR__ . '/vendor/autoload.php';
+} else {
+    add_action('admin_notices', function () {
+        echo '<div class="error"><p>لطفاً ابتدا دستور <code>composer install</code> را در پوشه افزونه wp-bookfa اجرا کنید.</p></div>';
+    });
+    return;
 }
 
-// کدهای فعال‌سازی افزونه (ساخت دیتابیس)
+// ۲. لود مستقیم تمام کلاس‌های داخلی افزونه برای جلوگیری از خطای ناپدید شدن کلاس‌ها
+require_once __DIR__ . '/includes/class-wpbf-activator.php';
+require_once __DIR__ . '/includes/class-wpbf-admin.php';
+require_once __DIR__ . '/includes/class-wpbf-public.php';
+require_once __DIR__ . '/includes/class-wpbf-mailer.php';
+
+// ۳. ثبت هوک فعال‌سازی
 register_activation_hook(__FILE__, ['WPBookfa\WPBF_Activator', 'activate']);
 
-// راه‌اندازی ماژول‌های اصلی
+// ۴. راه‌اندازی ماژول‌های اصلی
 add_action('plugins_loaded', 'wpbf_init_plugin');
 
 function wpbf_init_plugin(): void

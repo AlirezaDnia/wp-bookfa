@@ -1,0 +1,14 @@
+{
+    "name": "wpbf/wp-bookfa",
+    "description": "A light weight and modern Persian booking system for WordPress.",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=8.1",
+        "morilog/jalali": "^3.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "WPBookfa\\": "includes/"
+        }
+    }
+}

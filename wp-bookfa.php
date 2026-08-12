@@ -65,6 +65,8 @@ final class WP_Bookfa
 
     public function init_plugin()
     {
+        new \Bookfa\Admin\InstructorSettings();
+
         // Initialize Admin & REST API
         if (is_admin()) {
             new \Bookfa\Admin\AdminMenu();

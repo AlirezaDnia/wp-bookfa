@@ -112,17 +112,22 @@ class AvailabilityController extends WP_REST_Controller
     }
 
     /**
-     * ذخیره/به‌روزرسانی شیفت‌های کاری توسط مدرس در پنل مدیریت
+     * ذخیره/به‌روزرسانی شیفت‌های کاری مدرس
      */
     public function save_availability(WP_REST_Request $request)
     {
         global $wpdb;
 
-        $instructor_id = get_current_user_id();
-        $schedules     = $request->get_param('schedules'); // آرایه‌ای از روزها و ساعت‌ها
+        // اگر ادمین آی‌دی مدرس را فرستاده بود از آن استفاده کن، در غیر این صورت کاربر فعلی
+        $instructor_id = absint($request->get_param('instructor_id'));
+        if (empty($instructor_id) || !current_user_can('manage_options')) {
+            $instructor_id = get_current_user_id();
+        }
 
-        if (!is_array($schedules)) {
-            return new WP_Error('invalid_data', 'فرمت داده‌ها نادرست است.', ['status' => 400]);
+        $schedules = $request->get_param('schedules'); // آرایه‌ای از روزها و ساعت‌ها
+
+        if (empty($instructor_id) || !is_array($schedules)) {
+            return new WP_Error('invalid_data', 'شناسه مدرس یا فرمت داده‌ها نادرست است.', ['status' => 400]);
         }
 
         $table = $wpdb->prefix . 'bookfa_availability';

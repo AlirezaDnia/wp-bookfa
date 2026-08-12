@@ -45,20 +45,7 @@ class BookingController extends WP_REST_Controller
      */
     public function get_instructors(WP_REST_Request $request)
     {
-        $args = [
-            'role__in' => ['administrator', 'editor', 'author'], // یا نقش اختصاصی instructor
-            'number'   => 100,
-            'fields'   => ['ID', 'display_name', 'user_email'],
-        ];
-
-        $users = get_users($args);
-        $instructors = array_map(function ($user) {
-            return [
-                'id'     => $user->ID,
-                'name'   => $user->display_name,
-                'avatar' => get_avatar_url($user->ID, ['size' => 128]),
-            ];
-        }, $users);
+        $instructors = \Bookfa\Admin\InstructorSettings::get_all_instructors();
 
         return new WP_REST_Response([
             'success' => true,

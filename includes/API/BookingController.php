@@ -38,6 +38,15 @@ class BookingController extends WP_REST_Controller
                 'permission_callback' => '__return_true',
             ],
         ]);
+
+        // در متد register_routes کلاس BookingController اضافه کنید:
+        register_rest_route($this->namespace, '/' . $this->rest_base . '/list', [
+            [
+                'methods'             => WP_REST_Server::READABLE,
+                'callback'            => [$this, 'get_bookings_list'],
+                'permission_callback' => [$this, 'check_admin_permission'],
+            ],
+        ]);
     }
 
     public function get_instructors(WP_REST_Request $request)
@@ -54,5 +63,47 @@ class BookingController extends WP_REST_Controller
     {
         // منطق ثبت رزرو
         return new WP_REST_Response(['success' => true], 200);
+    }
+
+    public function check_admin_permission()
+    {
+        return current_user_can('edit_posts');
+    }
+
+    /**
+     * دریافت لیست رزروها با فیلتر مدرس
+     */
+    public function get_bookings_list(WP_REST_Request $request)
+    {
+        global $wpdb;
+
+        $instructor_id = absint($request->get_param('instructor_id'));
+        $table = $wpdb->prefix . 'bookfa_bookings';
+
+        // اگر کاربر ادمین باشد و مدرس خاصی را انتخاب نکرده باشد، همه رزروها را می‌آورد
+        if (current_user_can('manage_options')) {
+            if ($instructor_id > 0) {
+                $query = $wpdb->prepare("SELECT * FROM $table WHERE instructor_id = %d ORDER BY booking_date DESC, start_time ASC", $instructor_id);
+            } else {
+                $query = "SELECT * FROM $table ORDER BY booking_date DESC, start_time ASC";
+            }
+        } else {
+            // مدرس عادی فقط رزروهای خودش را می‌بیند
+            $current_user_id = get_current_user_id();
+            $query = $wpdb->prepare("SELECT * FROM $table WHERE instructor_id = %d ORDER BY booking_date DESC, start_time ASC", $current_user_id);
+        }
+
+        $bookings = $wpdb->get_results($query);
+
+        // افزودن نام مدرس به رزروها جهت نمایش به ادمین
+        foreach ($bookings as &$b) {
+            $user_info = get_userdata($b->instructor_id);
+            $b->instructor_name = $user_info ? $user_info->display_name : 'نامشخص';
+        }
+
+        return new WP_REST_Response([
+            'success'  => true,
+            'bookings' => $bookings
+        ], 200);
     }
 }

@@ -89,13 +89,33 @@ $current_user = wp_get_current_user();
     </div>
 
     <!-- Tab 2: Bookings List -->
+    <!-- Tab 2: Bookings List -->
     <div id="tab-bookings" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hidden">
-        <h2 class="text-lg font-bold text-gray-800 mb-4">رزروهای ثبت‌شده</h2>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-gray-800">لیست رزروهای ثبت‌شده</h2>
+
+            <?php if (current_user_can('manage_options')) : ?>
+                <div class="flex items-center gap-2">
+                    <label for="filter-instructor-bookings" class="text-xs font-semibold text-gray-500">فیلتر مدرس:</label>
+                    <select id="filter-instructor-bookings" onchange="loadBookings()" class="border border-gray-200 rounded-lg px-3 py-1.5 text-xs bg-white font-medium outline-none">
+                        <option value="0">همه مدرسین</option>
+                        <?php
+                        $instructors = \Bookfa\Admin\InstructorSettings::get_all_instructors();
+                        foreach ($instructors as $inst) {
+                            echo '<option value="' . esc_attr($inst['id']) . '">' . esc_html($inst['name']) . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+            <?php endif; ?>
+        </div>
+
         <div class="overflow-x-auto">
             <table class="w-full text-right text-sm text-gray-600">
                 <thead class="bg-gray-50 text-gray-700 font-bold border-b">
                     <tr>
                         <th class="p-3">#</th>
+                        <th class="p-3">مدرس / مشاور</th>
                         <th class="p-3">نام مشتری</th>
                         <th class="p-3">تلفن تماس</th>
                         <th class="p-3">تاریخ رزرو</th>
@@ -105,7 +125,7 @@ $current_user = wp_get_current_user();
                 </thead>
                 <tbody id="bookings-table-body">
                     <tr>
-                        <td colspan="6" class="p-4 text-center text-gray-400">در حال بارگذاری...</td>
+                        <td colspan="7" class="p-4 text-center text-gray-400">در حال بارگذاری...</td>
                     </tr>
                 </tbody>
             </table>

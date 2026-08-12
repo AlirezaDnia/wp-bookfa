@@ -5,8 +5,16 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
+            // دریافت شناسه مدرس (اگر ادمین باشد از select وگرنه null ارسال می‌شود تا سمت بک‌اند آی‌دی کاربر جاری استفاده شود)
+            const instructorSelect = document.getElementById(
+                "instructor-select-admin",
+            );
+            const instructorId = instructorSelect
+                ? instructorSelect.value
+                : null;
+
             const schedules = [];
-            const days = [0, 1, 2, 3, 4, 5, 6];
+            const days = [6, 0, 1, 2, 3, 4, 5]; // شنبه تا جمعه
 
             days.forEach((day) => {
                 const active = form.querySelector(
@@ -36,7 +44,10 @@ document.addEventListener("DOMContentLoaded", () => {
                             "Content-Type": "application/json",
                             "X-WP-Nonce": BookfaAdmin.nonce,
                         },
-                        body: JSON.stringify({ schedules }),
+                        body: JSON.stringify({
+                            instructor_id: instructorId,
+                            schedules: schedules,
+                        }),
                     },
                 );
 

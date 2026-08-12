@@ -27,6 +27,20 @@ $current_user = wp_get_current_user();
     <div id="tab-schedules" class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
         <h2 class="text-lg font-bold text-gray-800 mb-4">تعریف ساعات کاری روزهای هفته</h2>
 
+        <?php if (current_user_can('manage_options')) : ?>
+            <!-- بخش انتخاب مدرس اختصاصی مدیر کل -->
+            <div class="mb-6 p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 flex items-center justify-between">
+                <label for="instructor-select-admin" class="font-bold text-indigo-900 text-sm">انتخاب مدرس جهت مدیریت شیفت‌ها:</label>
+                <select id="instructor-select-admin" class="border border-indigo-200 rounded-lg px-3 py-2 text-sm bg-white font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <?php
+                    $instructors = \Bookfa\Admin\InstructorSettings::get_all_instructors();
+                    foreach ($instructors as $inst) {
+                        echo '<option value="' . esc_attr($inst['id']) . '">' . esc_html($inst['name']) . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+        <?php endif; ?>
         <form id="bookfa-schedule-form" class="space-y-4">
             <?php
             $days = [

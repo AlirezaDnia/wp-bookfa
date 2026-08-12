@@ -118,13 +118,16 @@ class AvailabilityController extends WP_REST_Controller
     {
         global $wpdb;
 
-        // اگر ادمین آی‌دی مدرس را فرستاده بود از آن استفاده کن، در غیر این صورت کاربر فعلی
-        $instructor_id = absint($request->get_param('instructor_id'));
-        if (empty($instructor_id) || !current_user_can('manage_options')) {
+        $target_instructor_id = absint($request->get_param('instructor_id'));
+
+        // اگر کاربر مدیر کل باشد و مدرس انتخاب کرده باشد، از همان آی‌دی استفاده کن؛ در غیر این صورت آی‌دی کاربر جاری
+        if (current_user_can('manage_options') && !empty($target_instructor_id)) {
+            $instructor_id = $target_instructor_id;
+        } else {
             $instructor_id = get_current_user_id();
         }
 
-        $schedules = $request->get_param('schedules'); // آرایه‌ای از روزها و ساعت‌ها
+        $schedules = $request->get_param('schedules');
 
         if (empty($instructor_id) || !is_array($schedules)) {
             return new WP_Error('invalid_data', 'شناسه مدرس یا فرمت داده‌ها نادرست است.', ['status' => 400]);
@@ -132,7 +135,7 @@ class AvailabilityController extends WP_REST_Controller
 
         $table = $wpdb->prefix . 'bookfa_availability';
 
-        // پاکسازی زمان‌های قبلی جهت جایگزینی
+        // پاکسازی زمان‌های قبلی همان مدرس
         $wpdb->delete($table, ['instructor_id' => $instructor_id], ['%d']);
 
         foreach ($schedules as $sched) {

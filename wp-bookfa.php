@@ -54,7 +54,14 @@ final class WP_Bookfa
 
     public function activate()
     {
+        // ساخت جداول دیتابیس
         \Bookfa\Database\Installer::create_tables();
+
+        // ثبت نقش مدرس جهت اطمینان
+        $instructor_settings = new \Bookfa\Admin\InstructorSettings();
+        $instructor_settings->register_instructor_role();
+
+        // تازه‌سازی پیوندهای یکتا برای ثبت REST API Routes
         flush_rewrite_rules();
     }
 
@@ -65,14 +72,19 @@ final class WP_Bookfa
 
     public function init_plugin()
     {
+        // لود تنظیمات نقش مدرس
         new \Bookfa\Admin\InstructorSettings();
 
-        // Initialize Admin & REST API
+        // منوی ادمین
         if (is_admin()) {
             new \Bookfa\Admin\AdminMenu();
         }
+
+        // کنترلرهای REST API
         new \Bookfa\API\BookingController();
         new \Bookfa\API\AvailabilityController();
+
+        // شورت‌کد فرانت‌اند
         new \Bookfa\Frontend\Shortcode();
     }
 }

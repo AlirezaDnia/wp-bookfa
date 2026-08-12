@@ -61,8 +61,44 @@ class BookingController extends WP_REST_Controller
 
     public function create_booking(WP_REST_Request $request)
     {
-        // منطق ثبت رزرو
-        return new WP_REST_Response(['success' => true], 200);
+        global $wpdb;
+
+        $instructor_id  = absint($request->get_param('instructor_id'));
+        $customer_name  = sanitize_text_field($request->get_param('customer_name'));
+        $customer_phone = sanitize_text_field($request->get_param('customer_phone'));
+        $booking_date   = sanitize_text_field($request->get_param('booking_date'));
+        $start_time     = sanitize_text_field($request->get_param('start_time'));
+        $end_time       = sanitize_text_field($request->get_param('end_time'));
+
+        if (empty($instructor_id) || empty($customer_name) || empty($customer_phone) || empty($booking_date)) {
+            return new WP_Error('missing_fields', 'لطفا تمامی فیلدهای ضروری را پر کنید.', ['status' => 400]);
+        }
+
+        $table = $wpdb->prefix . 'bookfa_bookings';
+
+        $inserted = $wpdb->insert(
+            $table,
+            [
+                'instructor_id'  => $instructor_id,
+                'customer_name'  => $customer_name,
+                'customer_phone' => $customer_phone,
+                'booking_date'   => $booking_date,
+                'start_time'     => $start_time,
+                'end_time'       => $end_time,
+                'status'         => 'confirmed',
+                'created_at'     => current_time('mysql'),
+            ],
+            ['%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s']
+        );
+
+        if (!$inserted) {
+            return new WP_Error('db_error', 'خطا در ثبت اطلاعات در دیتابیس.', ['status' => 500]);
+        }
+
+        return new WP_REST_Response([
+            'success' => true,
+            'message' => 'رزرو شما با موفقیت ثبت شد!'
+        ], 200);
     }
 
     public function check_admin_permission()

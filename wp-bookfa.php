@@ -2,7 +2,7 @@
 
 /**
  * Plugin Name:       WP Bookfa
- * Plugin URI:        https://github.com/your-repo/wp-bookfa
+ * Plugin URI:        https://github.com/AlirezaDnia/wp-bookfa
  * Description:       افزونه حرفه‌ای و مدرن رزرو وقت آنلاین مدرسین و مشاورین
  * Version:           1.0.0
  * Requires at least: 6.5
